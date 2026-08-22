@@ -43,10 +43,10 @@ Design & Execution
 
 Primary visual identity:
 
-* Warm amber / golden orange
-* Deep charcoal / near-black
-* White
-* Soft neutral architectural tones
+- Warm amber / golden orange
+- Deep charcoal / near-black
+- White
+- Soft neutral architectural tones
 
 Use the supplied Dream Kcreation logo assets.
 
@@ -54,8 +54,8 @@ Do not redesign or distort the logo.
 
 Support both:
 
-* Light mode
-* Dark mode
+- Light mode
+- Dark mode
 
 The logo and text must remain readable in both modes.
 
@@ -71,15 +71,15 @@ The design should feel like a premium architecture/interior studio.
 
 Use:
 
-* React
-* TypeScript
-* Vite
-* Tailwind CSS
-* GSAP
-* GSAP ScrollTrigger
-* HTML Canvas for frame-by-frame scroll animations
-* Lucide icons or another lightweight icon library
-* React Router for multiple pages
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- GSAP
+- GSAP ScrollTrigger
+- HTML Canvas for frame-by-frame scroll animations
+- Lucide icons or another lightweight icon library
+- React Router for multiple pages
 
 Use clean component architecture.
 
@@ -87,19 +87,19 @@ Do not create one giant React component.
 
 Create reusable components such as:
 
-* Navbar
-* Footer
-* ThemeToggle
-* MagneticButton / AnimatedButton
-* ScrollFrameAnimation
-* SectionHeading
-* ServiceCard
-* MaterialCategory
-* BrandGrid
-* ProjectCard
-* ProcessTimeline
-* EnquiryForm
-* CTASection
+- Navbar
+- Footer
+- ThemeToggle
+- MagneticButton / AnimatedButton
+- ScrollFrameAnimation
+- SectionHeading
+- ServiceCard
+- MaterialCategory
+- BrandGrid
+- ProjectCard
+- ProcessTimeline
+- EnquiryForm
+- CTASection
 
 ---
 
@@ -168,24 +168,24 @@ end="+=4000"
 
 Requirements:
 
-* Use HTML Canvas.
-* Use GSAP ScrollTrigger.
-* Map scroll progress to frame index.
-* Render frame using requestAnimationFrame.
-* Avoid creating 100+ visible img elements.
-* Do not decode every frame simultaneously if unnecessary.
-* Preload the first frame immediately.
-* Progressive-load additional frames.
-* Prioritize frames close to the current scroll position.
-* Avoid blocking page rendering.
-* Dispose / clean up ScrollTrigger and event listeners.
-* Handle resize correctly.
-* Handle devicePixelRatio correctly.
-* Avoid excessive canvas resolution on mobile.
-* Use lazy loading for animation sections that are below the fold.
-* Do not load desktop and mobile frame sequences simultaneously.
-* Use the correct sequence according to viewport.
-* Respect prefers-reduced-motion.
+- Use HTML Canvas.
+- Use GSAP ScrollTrigger.
+- Map scroll progress to frame index.
+- Render frame using requestAnimationFrame.
+- Avoid creating 100+ visible img elements.
+- Do not decode every frame simultaneously if unnecessary.
+- Preload the first frame immediately.
+- Progressive-load additional frames.
+- Prioritize frames close to the current scroll position.
+- Avoid blocking page rendering.
+- Dispose / clean up ScrollTrigger and event listeners.
+- Handle resize correctly.
+- Handle devicePixelRatio correctly.
+- Avoid excessive canvas resolution on mobile.
+- Use lazy loading for animation sections that are below the fold.
+- Do not load desktop and mobile frame sequences simultaneously.
+- Use the correct sequence according to viewport.
+- Respect prefers-reduced-motion.
 
 If reduced motion is enabled, show a high-quality poster frame instead of forcing the full animation.
 
@@ -281,7 +281,7 @@ Director
 Nakul Suthar
 Execution Head
 
-Mahi Suthar
+Mahipal Suthar
 Business Management
 
 Use only supplied information.
@@ -304,22 +304,22 @@ FROM LEGACY TO LIFESTYLE
 
 Use the company's themes:
 
-* Craft
-* Care
-* Creation
-* Integrity
-* Personalization
-* Quality
+- Craft
+- Care
+- Creation
+- Integrity
+- Personalization
+- Quality
 
 The portfolio states that the company combines a legacy of hands-on craftsmanship with a modern approach to turnkey execution.
 
 Visually communicate this using:
 
-* subtle image reveals
-* horizontal scroll elements
-* masked text
-* line animations
-* image parallax
+- subtle image reveals
+- horizontal scroll elements
+- masked text
+- line animations
+- image parallax
 
 Do not over-animate every element.
 
@@ -333,54 +333,54 @@ Break services into clear categories.
 
 ## DESIGN
 
-* Interior Design
-* Space Planning
-* Concept Development
-* 3D Visualization
-* Material & Finish Selection
-* Lighting Design
-* Furniture Design
-* Design Consultation
+- Interior Design
+- Space Planning
+- Concept Development
+- 3D Visualization
+- Material & Finish Selection
+- Lighting Design
+- Furniture Design
+- Design Consultation
 
 ## EXECUTION
 
-* Turnkey Interior Execution
-* Civil Work
-* Electrical Solutions
-* Plumbing
-* False Ceiling
-* POP Work
-* Flooring
-* Painting
-* Glass & Profiles
-* Renovation & Makeovers
+- Turnkey Interior Execution
+- Civil Work
+- Electrical Solutions
+- Plumbing
+- False Ceiling
+- POP Work
+- Flooring
+- Painting
+- Glass & Profiles
+- Renovation & Makeovers
 
 ## FURNITURE
 
-* Modular Furniture
-* Custom Furniture
-* Modular Kitchens
-* Wardrobes
-* Custom Wooden Furniture
-* Wooden Articles & Décor
+- Modular Furniture
+- Custom Furniture
+- Modular Kitchens
+- Wardrobes
+- Custom Wooden Furniture
+- Wooden Articles & Décor
 
 ## COMMERCIAL
 
-* Office Interiors
-* Retail
-* Restaurants
-* Hospitality
-* Showrooms
+- Office Interiors
+- Retail
+- Restaurants
+- Hospitality
+- Showrooms
 
 ## MATERIALS & SUPPLY
 
-* Plywood
-* Laminates
-* Veneers
-* Tiles
-* Builder Materials
-* Furniture Hardware
-* Interior Materials
+- Plywood
+- Laminates
+- Veneers
+- Tiles
+- Builder Materials
+- Furniture Hardware
+- Interior Materials
 
 ## ARCHITECT PARTNERSHIP
 
@@ -416,10 +416,10 @@ Use animated arrows.
 
 When the user hovers or scrolls over a service category:
 
-* arrow moves
-* underline expands
-* relevant image appears
-* text transitions smoothly
+- arrow moves
+- underline expands
+- relevant image appears
+- text transitions smoothly
 
 The user specifically wants arrow-based animation, so make the arrow movement subtle and premium.
 
@@ -451,15 +451,15 @@ Mobile_Manufacturing_frames.zip on mobile.
 
 The supplied sequence should tell the story:
 
-* Raw boards / materials
-* Workshop
-* Cutting
-* Precision machinery
-* CNC machining
-* Sanding
-* Furniture component creation
-* Drawer / hardware assembly
-* Finished furniture
+- Raw boards / materials
+- Workshop
+- Cutting
+- Precision machinery
+- CNC machining
+- Sanding
+- Furniture component creation
+- Drawer / hardware assembly
+- Finished furniture
 
 Create scroll chapters:
 
@@ -504,16 +504,16 @@ WORKSHOP CAPABILITY
 
 Cards:
 
-* Board Cutting
-* CNC Machining
-* Edge Processing
-* Sanding
-* Component Preparation
-* Furniture Assembly
-* Hardware Installation
-* Quality Inspection
-* Finished Furniture
-* Installation
+- Board Cutting
+- CNC Machining
+- Edge Processing
+- Sanding
+- Component Preparation
+- Furniture Assembly
+- Hardware Installation
+- Quality Inspection
+- Finished Furniture
+- Installation
 
 Only claim capabilities represented by the supplied materials or explicitly provided by the business.
 
@@ -533,152 +533,152 @@ Categories:
 
 ### Plywood & Boards
 
-* CenturyPly
-* Greenply
-* Archidply
-* Kitply
-* Duro
-* National Plywood
-* Action TESA
-* Merino
-* Rushil Decor
-* Virgo
-* Ecoste
+- CenturyPly
+- Greenply
+- Archidply
+- Kitply
+- Duro
+- National Plywood
+- Action TESA
+- Merino
+- Rushil Decor
+- Virgo
+- Ecoste
 
 ### Laminates
 
-* Greenlam
-* Merino
-* CenturyLaminates
-* Royale Touche
-* Stylam
-* Virgo
-* AICA Sunmica
-* Formica
+- Greenlam
+- Merino
+- CenturyLaminates
+- Royale Touche
+- Stylam
+- Virgo
+- AICA Sunmica
+- Formica
 
 ### Veneers
 
-* Greenply
-* CenturyVeneers
-* Greenlam
-* Archidply
-* DecoWood
-* Euro
-* Alstone
+- Greenply
+- CenturyVeneers
+- Greenlam
+- Archidply
+- DecoWood
+- Euro
+- Alstone
 
 ### Furniture Hardware
 
-* Blum
-* Hettich
-* Häfele
-* Grass
-* Salice
-* Kesseböhmer
-* FGV
-* Dorset
-* Ebco
-* Ozone
-* Godrej
+- Blum
+- Hettich
+- Häfele
+- Grass
+- Salice
+- Kesseböhmer
+- FGV
+- Dorset
+- Ebco
+- Ozone
+- Godrej
 
 ### Tiles
 
-* Kajaria
-* Somany
-* Johnson
-* Orientbell
-* Nitco
-* Simpolo
-* RAK Ceramics
-* Varmora
-* Qutone
-* AGL
+- Kajaria
+- Somany
+- Johnson
+- Orientbell
+- Nitco
+- Simpolo
+- RAK Ceramics
+- Varmora
+- Qutone
+- AGL
 
 ### Paints & Wall Finishes
 
-* Asian Paints
-* Berger
-* Dulux
-* Nerolac
-* JSW Paints
-* Nippon Paint
-* Birla Opus
+- Asian Paints
+- Berger
+- Dulux
+- Nerolac
+- JSW Paints
+- Nippon Paint
+- Birla Opus
 
 ### Lighting
 
-* Wipro Lighting
-* Philips / Signify
-* Havells
-* Bajaj Electricals
-* Jaquar Lighting
-* Syska
-* Orient
+- Wipro Lighting
+- Philips / Signify
+- Havells
+- Bajaj Electricals
+- Jaquar Lighting
+- Syska
+- Orient
 
 ### Electrical
 
-* Schneider Electric
-* Legrand
-* ABB
-* Siemens
-* Havells
-* Anchor by Panasonic
-* L&T
-* GM Modular
-* Crabtree
+- Schneider Electric
+- Legrand
+- ABB
+- Siemens
+- Havells
+- Anchor by Panasonic
+- L&T
+- GM Modular
+- Crabtree
 
 ### Glass
 
-* Saint-Gobain Glass
-* AIS Glass
-* Guardian Glass
-* Modiguard
-* Gold Plus
+- Saint-Gobain Glass
+- AIS Glass
+- Guardian Glass
+- Modiguard
+- Gold Plus
 
 ### Gypsum / Ceiling
 
-* Saint-Gobain Gyproc
-* Armstrong
-* USG Boral
-* Knauf
-* Hunter Douglas
+- Saint-Gobain Gyproc
+- Armstrong
+- USG Boral
+- Knauf
+- Hunter Douglas
 
 ### Adhesives / Construction Chemicals
 
-* Fevicol / Pidilite
-* Dr. Fixit
-* Sika
-* Fosroc
-* Mapei
-* Ardex
-* Weber
-* MYK Laticrete
+- Fevicol / Pidilite
+- Dr. Fixit
+- Sika
+- Fosroc
+- Mapei
+- Ardex
+- Weber
+- MYK Laticrete
 
 ### Sanitaryware / Bathroom
 
-* Kohler
-* Jaquar
-* TOTO
-* Duravit
-* Grohe
-* Hansgrohe
-* Roca
-* Cera
-* Hindware
-* Parryware
+- Kohler
+- Jaquar
+- TOTO
+- Duravit
+- Grohe
+- Hansgrohe
+- Roca
+- Cera
+- Hindware
+- Parryware
 
 ### Appliances
 
-* Bosch
-* Siemens
-* Miele
-* Elica
-* Faber
-* Kaff
-* Franke
-* Glen
-* IFB
-* Whirlpool
-* LG
-* Samsung
+- Bosch
+- Siemens
+- Miele
+- Elica
+- Faber
+- Kaff
+- Franke
+- Glen
+- IFB
+- Whirlpool
+- LG
+- Samsung
 
 IMPORTANT:
 
@@ -706,15 +706,15 @@ Use the supplied portfolio visuals.
 
 Categories:
 
-* Living Room
-* Kitchen
-* Master Bedroom
-* Guest Bedroom
-* Kids Bedroom
-* Dining Area
-* Residential Interiors
-* Commercial Interiors
-* Custom Furniture
+- Living Room
+- Kitchen
+- Master Bedroom
+- Guest Bedroom
+- Kids Bedroom
+- Dining Area
+- Residential Interiors
+- Commercial Interiors
+- Custom Furniture
 
 The supplied portfolio contains examples of living rooms, kitchens, bedrooms, kids bedrooms, master bedrooms and dining areas.
 
@@ -776,17 +776,17 @@ WHAT SETS US APART
 
 Use these themes from the supplied portfolio:
 
-* Family-Owned Legacy
-* Personalized Designs
-* Sustainable Practices
-* Attention to Detail
-* Uncompromising Quality
-* Competitive Pricing
-* Flexible Payment Options
-* Hands-on Craftsmanship
-* Trust
-* Transparency
-* Timeless Design
+- Family-Owned Legacy
+- Personalized Designs
+- Sustainable Practices
+- Attention to Detail
+- Uncompromising Quality
+- Competitive Pricing
+- Flexible Payment Options
+- Hands-on Craftsmanship
+- Trust
+- Transparency
+- Timeless Design
 
 Do not create fake certifications or claims.
 
@@ -804,16 +804,16 @@ An executive partner for architects and interior designers.
 
 Explain the value:
 
-* Execution support
-* Furniture manufacturing
-* Site coordination
-* Material sourcing
-* Civil work
-* Electrical work
-* False ceiling
-* Finishing
-* Installation
-* Handover
+- Execution support
+- Furniture manufacturing
+- Site coordination
+- Material sourcing
+- Civil work
+- Electrical work
+- False ceiling
+- Finishing
+- Installation
+- Handover
 
 The section should target architects and interior designers separately from residential customers.
 
@@ -864,12 +864,12 @@ Route:
 
 Use the same CTA in:
 
-* Navbar
-* Hero
-* Services
-* Manufacturing
-* Architect Partnership
-* Footer
+- Navbar
+- Hero
+- Services
+- Manufacturing
+- Architect Partnership
+- Footer
 
 Use smooth page transitions.
 
@@ -906,56 +906,56 @@ Upload Floor Plan / PDF
 
 Project Type options:
 
-* Residential Interior
-* Commercial Interior
-* Office
-* Retail
-* Restaurant
-* Hospitality
-* Modular Kitchen
-* Wardrobe
-* Custom Furniture
-* Renovation
-* Plywood / Materials
-* Tiles / Builder Materials
-* Architect / Interior Designer Partnership
-* Other
+- Residential Interior
+- Commercial Interior
+- Office
+- Retail
+- Restaurant
+- Hospitality
+- Modular Kitchen
+- Wardrobe
+- Custom Furniture
+- Renovation
+- Plywood / Materials
+- Tiles / Builder Materials
+- Architect / Interior Designer Partnership
+- Other
 
 Services Required should support multi-select:
 
-* Interior Design
-* Turnkey Execution
-* Civil Work
-* Electrical
-* Plumbing
-* False Ceiling / POP
-* Painting
-* Flooring
-* Glass & Profiles
-* Modular Furniture
-* Custom Furniture
-* Plywood
-* Tiles
-* Builder Materials
-* Other
+- Interior Design
+- Turnkey Execution
+- Civil Work
+- Electrical
+- Plumbing
+- False Ceiling / POP
+- Painting
+- Flooring
+- Glass & Profiles
+- Modular Furniture
+- Custom Furniture
+- Plywood
+- Tiles
+- Builder Materials
+- Other
 
 Budget options:
 
-* Under ₹5 Lakhs
-* ₹5–10 Lakhs
-* ₹10–20 Lakhs
-* ₹20–40 Lakhs
-* ₹40 Lakhs+
-* Discuss on Call
+- Under ₹5 Lakhs
+- ₹5–10 Lakhs
+- ₹10–20 Lakhs
+- ₹20–40 Lakhs
+- ₹40 Lakhs+
+- Discuss on Call
 
 Timeline:
 
-* Immediately
-* Within 1 Month
-* 1–3 Months
-* 3–6 Months
-* 6+ Months
-* Planning Stage
+- Immediately
+- Within 1 Month
+- 1–3 Months
+- 3–6 Months
+- 6+ Months
+- Planning Stage
 
 Do not store or send form data to any external service unless explicitly configured.
 
@@ -1023,17 +1023,17 @@ Use a premium full-screen mobile menu.
 
 Light mode:
 
-* warm white background
-* charcoal text
-* amber accents
-* soft grey surfaces
+- warm white background
+- charcoal text
+- amber accents
+- soft grey surfaces
 
 Dark mode:
 
-* charcoal / near-black background
-* white text
-* amber accents
-* subtle dark-grey surfaces
+- charcoal / near-black background
+- white text
+- amber accents
+- subtle dark-grey surfaces
 
 Do not simply invert all colors.
 
@@ -1041,11 +1041,11 @@ The images should remain natural.
 
 Ensure:
 
-* WCAG-friendly contrast
-* buttons remain readable
-* logo remains visible
-* forms remain accessible
-* hover states work in both themes
+- WCAG-friendly contrast
+- buttons remain readable
+- logo remains visible
+- forms remain accessible
+- hover states work in both themes
 
 Remember the supplied black/white logo variations and use the correct version depending on the background.
 
@@ -1055,24 +1055,24 @@ Remember the supplied black/white logo variations and use the correct version de
 
 The animation style should feel:
 
-* cinematic
-* architectural
-* smooth
-* restrained
-* premium
-* intentional
+- cinematic
+- architectural
+- smooth
+- restrained
+- premium
+- intentional
 
 Use:
 
-* GSAP ScrollTrigger
-* opacity transitions
-* clip-path reveals
-* image masking
-* subtle parallax
-* text splitting
-* line drawing
-* animated arrows
-* smooth section transitions
+- GSAP ScrollTrigger
+- opacity transitions
+- clip-path reveals
+- image masking
+- subtle parallax
+- text splitting
+- line drawing
+- animated arrows
+- smooth section transitions
 
 Do NOT animate every element.
 
@@ -1094,23 +1094,23 @@ Do not load all 200 frames at initial page load.
 
 Requirements:
 
-* lazy-load below-fold animation sequences
-* preload only the first few frames
-* progressively load remaining frames
-* maintain an in-memory cache
-* avoid duplicate frame requests
-* use canvas
-* use requestAnimationFrame
-* don't use CSS background-image for every frame
-* don't render all frames simultaneously
-* don't create hundreds of DOM image elements
-* don't load mobile frames on desktop
-* don't load desktop frames on mobile
-* clean up event listeners
-* clean up GSAP ScrollTriggers
-* optimize image decoding
-* respect reduced-motion preference
-* provide poster fallback
+- lazy-load below-fold animation sequences
+- preload only the first few frames
+- progressively load remaining frames
+- maintain an in-memory cache
+- avoid duplicate frame requests
+- use canvas
+- use requestAnimationFrame
+- don't use CSS background-image for every frame
+- don't render all frames simultaneously
+- don't create hundreds of DOM image elements
+- don't load mobile frames on desktop
+- don't load desktop frames on mobile
+- clean up event listeners
+- clean up GSAP ScrollTriggers
+- optimize image decoding
+- respect reduced-motion preference
+- provide poster fallback
 
 Keep the website responsive and fast on mid-range Android phones.
 
@@ -1120,17 +1120,17 @@ Keep the website responsive and fast on mid-range Android phones.
 
 Desktop:
 
-* 1440px+
-* 1280px
-* 1024px
+- 1440px+
+- 1280px
+- 1024px
 
 Tablet:
 
-* 768px–1023px
+- 768px–1023px
 
 Mobile:
 
-* 320px–767px
+- 320px–767px
 
 Use the dedicated portrait frame sequences for mobile.
 
@@ -1144,16 +1144,16 @@ Mobile should feel deliberately designed rather than being a compressed desktop 
 
 Implement:
 
-* proper title tags
-* meta descriptions
-* Open Graph metadata
-* semantic headings
-* descriptive alt text
-* sitemap-ready structure
-* robots-ready structure
-* LocalBusiness / InteriorDesigner structured data where appropriate
-* canonical URLs
-* fast-loading images
+- proper title tags
+- meta descriptions
+- Open Graph metadata
+- semantic headings
+- descriptive alt text
+- sitemap-ready structure
+- robots-ready structure
+- LocalBusiness / InteriorDesigner structured data where appropriate
+- canonical URLs
+- fast-loading images
 
 Suggested homepage title:
 
@@ -1171,15 +1171,15 @@ Do not claim services or locations that are not supported.
 
 Implement:
 
-* keyboard navigation
-* visible focus states
-* accessible buttons
-* accessible forms
-* proper labels
-* semantic HTML
-* reduced-motion support
-* sufficient contrast
-* mobile touch-friendly controls
+- keyboard navigation
+- visible focus states
+- accessible buttons
+- accessible forms
+- proper labels
+- semantic HTML
+- reduced-motion support
+- sufficient contrast
+- mobile touch-friendly controls
 
 ---
 
@@ -1187,16 +1187,16 @@ Implement:
 
 Use:
 
-* TypeScript
-* reusable components
-* clean folder structure
-* data-driven services
-* data-driven brands
-* data-driven projects
-* reusable animation utilities
-* no duplicated code
-* no hardcoded repeated JSX
-* comments around the frame animation engine
+- TypeScript
+- reusable components
+- clean folder structure
+- data-driven services
+- data-driven brands
+- data-driven projects
+- reusable animation utilities
+- no duplicated code
+- no hardcoded repeated JSX
+- comments around the frame animation engine
 
 Recommended structure:
 
@@ -1220,18 +1220,18 @@ Use the supplied company PDFs and supplied business requirements as the source o
 
 Do NOT invent:
 
-* awards
-* years of experience
-* number of projects
-* client names
-* testimonials
-* certifications
-* offices
-* exact pricing
-* partnerships
-* machinery specifications
-* brand partnerships
-* fake statistics
+- awards
+- years of experience
+- number of projects
+- client names
+- testimonials
+- certifications
+- offices
+- exact pricing
+- partnerships
+- machinery specifications
+- brand partnerships
+- fake statistics
 
 Where information is missing, use editable placeholders or omit the content.
 
@@ -1249,24 +1249,20 @@ The finished website should make a visitor understand within the first 10–15 s
 
 The website should visually communicate:
 
-DESIGN
-+
-CRAFT
-+
-MANUFACTURING
-+
-EXECUTION
-+
+DESIGN +
+CRAFT +
+MANUFACTURING +
+EXECUTION +
 MATERIALS
 
 The final experience should feel premium enough for:
 
-* homeowners
-* architects
-* interior designers
-* commercial clients
-* furniture customers
-* material buyers
+- homeowners
+- architects
+- interior designers
+- commercial clients
+- furniture customers
+- material buyers
 
 Build the first version with all pages, navigation, responsive layouts, dark/light mode, frame-animation architecture, enquiry flow, and placeholder-safe content.
 

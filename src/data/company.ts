@@ -22,7 +22,7 @@ export const company = {
 export const team = [
   { name: "Dinesh Suthar", role: "Director" },
   { name: "Nakul Suthar", role: "Execution Head" },
-  { name: "Mahi Suthar", role: "Business Management" },
+  { name: "Mahipal Suthar", role: "Business Management" },
 ] as const;
 
 export const brandStory = {
@@ -36,20 +36,25 @@ export const brandStory = {
 
 export const philosophy = {
   heading: "FROM LEGACY TO LIFESTYLE",
-  statement:
-    "From legacy to lifestyle, our journey is built on craft, care, and creation.",
+  statement: "From legacy to lifestyle, our journey is built on craft, care, and creation.",
   pillars: [
     { title: "Craft", copy: "Hands-on carpentry passed down through generations." },
     { title: "Care", copy: "Every project treated the way we would treat our own home." },
     { title: "Creation", copy: "Modern, functional spaces made deeply personal." },
     { title: "Integrity", copy: "We listen deeply, think creatively and build honestly." },
-    { title: "Personalization", copy: "Designs tailored to your lifestyle, values and aspirations." },
+    {
+      title: "Personalization",
+      copy: "Designs tailored to your lifestyle, values and aspirations.",
+    },
     { title: "Quality", copy: "Attention to detail and uncompromising execution." },
   ],
 } as const;
 
 export const differentiators = [
-  { title: "Family-Owned Legacy", copy: "Artistry and integrity carried through generations of the Suthar family." },
+  {
+    title: "Family-Owned Legacy",
+    copy: "Artistry and integrity carried through generations of the Suthar family.",
+  },
   { title: "Personalized Designs", copy: "Tailored to your lifestyle rather than a catalogue." },
   { title: "Sustainable Practices", copy: "Eco-conscious material choices wherever possible." },
   { title: "Attention to Detail", copy: "The details decide whether a space feels finished." },
@@ -64,9 +69,17 @@ export const processSteps = [
   { no: "01", title: "CONTACT", copy: "Tell us about your space, your timeline and how you live." },
   { no: "02", title: "MEET UP", copy: "We meet, measure and understand the site in person." },
   { no: "03", title: "DESIGN", copy: "Concepts, planning and visualisation of the space." },
-  { no: "04", title: "SELECTIONS", copy: "Materials, finishes, hardware and fittings chosen together." },
+  {
+    no: "04",
+    title: "SELECTIONS",
+    copy: "Materials, finishes, hardware and fittings chosen together.",
+  },
   { no: "05", title: "EXECUTION", copy: "Manufacturing, civil, services and finishing on site." },
-  { no: "06", title: "HANDOVER", copy: "Quality checks, installation and a space ready to live in." },
+  {
+    no: "06",
+    title: "HANDOVER",
+    copy: "Quality checks, installation and a space ready to live in.",
+  },
 ] as const;
 
 export const processStatement =
