@@ -1,127 +1,170 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+
 import { frameUrl, type FrameSequence } from "@/data/frames";
 
+interface UseFrameSequenceOptions {
+  preloadCount?: number;
+}
+
+interface UseFrameSequenceResult {
+  frames: Array<HTMLImageElement | null>;
+  loadedCount: number;
+  isReady: boolean;
+}
+
+type IdleWindow = Window & {
+  requestIdleCallback?: (callback: () => void) => number;
+
+  cancelIdleCallback?: (handle: number) => void;
+};
+
 /**
- * Frame sequence loader.
+ * Progressive image sequence loader.
  *
- * Strategy (performance is the priority here):
- *  - only ONE sequence (desktop OR mobile) is ever requested;
- *  - frame 0 is fetched immediately so the canvas paints instantly;
- *  - remaining frames load progressively, prioritising the frames closest to
- *    the current scroll position;
- *  - decoded bitmaps are cached in memory and never requested twice;
- *  - loading only starts once the section is near the viewport (lazy);
- *  - everything is aborted/cleaned up on unmount.
+ * Loading strategy:
+ *
+ * 1. Load the first frame immediately.
+ * 2. Load a small number of nearby frames.
+ * 3. Continue loading the remaining frames progressively.
+ * 4. Never request the same frame twice.
  */
-export function useFrameSequence(seq: FrameSequence | null, active: boolean) {
-  const cache = useRef<(HTMLImageElement | null)[]>([]);
-  const inflight = useRef<Set<number>>(new Set());
-  const disposed = useRef(false);
-  const priority = useRef(0);
-  const [firstReady, setFirstReady] = useState(false);
-  const [unavailable, setUnavailable] = useState(false);
+export function useFrameSequence(
+  sequence: FrameSequence | null,
+  options: UseFrameSequenceOptions = {},
+): UseFrameSequenceResult {
+  const preloadCount = options.preloadCount ?? 5;
+
+  const [frames, setFrames] = useState<Array<HTMLImageElement | null>>([]);
   const [loadedCount, setLoadedCount] = useState(0);
+  const [isReady, setIsReady] = useState(false);
 
-  // Reset the cache whenever the sequence changes (viewport switch).
+  const loadedRef = useRef<Array<HTMLImageElement | null>>([]);
+  const loadingRef = useRef<Set<number>>(new Set());
+  const mountedRef = useRef(true);
+
   useEffect(() => {
-    cache.current = seq ? new Array(seq.count).fill(null) : [];
-    inflight.current = new Set();
-    setFirstReady(false);
-    setUnavailable(false);
+    mountedRef.current = true;
+
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!sequence || sequence.count <= 0) {
+      setFrames([]);
+      setLoadedCount(0);
+      setIsReady(false);
+
+      loadedRef.current = [];
+      loadingRef.current.clear();
+
+      return;
+    }
+
+    const initialFrames = Array<HTMLImageElement | null>(sequence.count).fill(null);
+
+    loadedRef.current = initialFrames;
+    loadingRef.current.clear();
+
+    setFrames(initialFrames);
     setLoadedCount(0);
-  }, [seq]);
+    setIsReady(false);
 
-  const load = useCallback(
-    (index: number) =>
-      new Promise<void>((resolve) => {
-        if (!seq || disposed.current) return resolve();
-        if (index < 0 || index >= seq.count) return resolve();
-        if (cache.current[index] || inflight.current.has(index)) return resolve();
-
-        inflight.current.add(index);
-        const image = new Image();
-        image.decoding = "async";
-        image.src = frameUrl(seq, index);
-        image.onload = () => {
-          inflight.current.delete(index);
-          if (disposed.current) return resolve();
-          cache.current[index] = image;
-          setLoadedCount((c) => c + 1);
-          if (index === 0) setFirstReady(true);
-          resolve();
-        };
-        image.onerror = () => {
-          inflight.current.delete(index);
-          // Frames not deployed yet -> poster fallback.
-          if (index === 0 && !disposed.current) setUnavailable(true);
-          resolve();
-        };
-      }),
-    [seq],
-  );
-
-  // Progressive, priority-aware loading loop.
-  useEffect(() => {
-    if (!seq || !active) return;
-    disposed.current = false;
     let cancelled = false;
 
-    const run = async () => {
-      await load(0);
-      if (cancelled || disposed.current) return;
+    const loadFrame = (index: number) => {
+      if (cancelled) return;
+      if (index < 0 || index >= sequence.count) return;
 
-      // Batch of a few frames up front so early scroll feels smooth.
-      for (let i = 1; i < Math.min(6, seq.count); i++) {
-        if (cancelled) return;
-        await load(i);
-      }
+      if (loadedRef.current[index]) return;
+      if (loadingRef.current.has(index)) return;
 
-      // Remaining frames, nearest-to-current-position first.
-      while (!cancelled && !disposed.current) {
-        const remaining: number[] = [];
-        for (let i = 0; i < seq.count; i++) {
-          if (!cache.current[i]) remaining.push(i);
-        }
-        if (remaining.length === 0) return;
-        remaining.sort(
-          (a, b) => Math.abs(a - priority.current) - Math.abs(b - priority.current),
-        );
-        // Load in small concurrent groups to avoid saturating mobile networks.
-        await Promise.all(remaining.slice(0, 4).map(load));
+      loadingRef.current.add(index);
+
+      const image = new Image();
+
+      image.decoding = "async";
+
+      image.onload = () => {
+        loadingRef.current.delete(index);
+
+        if (cancelled || !mountedRef.current) return;
+
+        loadedRef.current[index] = image;
+
+        setFrames((current) => {
+          const next = [...current];
+          next[index] = image;
+          return next;
+        });
+
+        setLoadedCount((current) => {
+          const next = current + 1;
+
+          if (next >= 1) {
+            setIsReady(true);
+          }
+
+          return next;
+        });
+      };
+
+      image.onerror = () => {
+        loadingRef.current.delete(index);
+      };
+
+      image.src = frameUrl(sequence, index);
+    };
+
+    /**
+     * Schedule the next frame without blocking the main thread.
+     */
+    const scheduleNext = (callback: () => void) => {
+      const browserWindow = window as IdleWindow;
+
+      if (typeof browserWindow.requestIdleCallback === "function") {
+        browserWindow.requestIdleCallback(callback);
+      } else {
+        window.setTimeout(callback, 30);
       }
     };
 
-    void run();
+    // First frame — highest priority.
+    loadFrame(0);
+
+    // Preload the first few frames.
+    for (let index = 1; index < Math.min(preloadCount, sequence.count); index += 1) {
+      loadFrame(index);
+    }
+
+    // Progressively load remaining frames.
+    let nextIndex = preloadCount;
+
+    const loadNext = () => {
+      if (cancelled || nextIndex >= sequence.count) {
+        return;
+      }
+
+      loadFrame(nextIndex);
+      nextIndex += 1;
+
+      scheduleNext(loadNext);
+    };
+
+    if (sequence.count > preloadCount) {
+      scheduleNext(loadNext);
+    }
 
     return () => {
       cancelled = true;
+      loadingRef.current.clear();
     };
-  }, [seq, active, load]);
+  }, [sequence, preloadCount]);
 
-  useEffect(() => {
-    disposed.current = false;
-    return () => {
-      disposed.current = true;
-    };
-  }, []);
-
-  const setPriority = useCallback((index: number) => {
-    priority.current = index;
-  }, []);
-
-  /** Nearest already-decoded frame at or before `index`. */
-  const frameAt = useCallback((index: number) => {
-    const frames = cache.current;
-    if (!frames.length) return null;
-    const clamped = Math.max(0, Math.min(frames.length - 1, index));
-    for (let i = clamped; i >= 0; i--) {
-      if (frames[i]) return frames[i];
-    }
-    for (let i = clamped + 1; i < frames.length; i++) {
-      if (frames[i]) return frames[i];
-    }
-    return null;
-  }, []);
-
-  return { frameAt, setPriority, firstReady, unavailable, loadedCount };
+  return {
+    frames,
+    loadedCount,
+    isReady,
+  };
 }

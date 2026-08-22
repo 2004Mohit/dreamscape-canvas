@@ -1,40 +1,83 @@
-/**
- * Frame sequence configuration for the cinematic canvas scroll animations.
- *
- * Frames are plain JPEG sequences served from `public/frames/...`, e.g.
- *   public/frames/home/desktop/frame_001.jpg  (1280x720, 50 frames)
- *   public/frames/home/mobile/frame_001.jpg   (720x1280, 50 frames)
- *
- * Drop the supplied sequences into those folders (see public/frames/README.md).
- * Until the files exist the engine automatically falls back to a poster image,
- * so the site never renders a blank canvas.
- */
-
-export type FrameSequence = {
-  /** Public directory holding frame_001.jpg … frame_0NN.jpg */
+export interface FrameSequence {
   dir: string;
   count: number;
   width: number;
   height: number;
-};
+}
 
-export type FrameSet = {
+export interface FrameSet {
   desktop: FrameSequence;
   mobile: FrameSequence;
-};
+}
 
-const pad = (n: number) => String(n).padStart(3, "0");
+/**
+ * Build the URL for a frame in a sequence.
+ *
+ * The existing frame loader uses this helper,
+ * so keep this function exported.
+ */
+export function frameUrl(sequence: FrameSequence, index: number): string {
+  const frameNumber = String(index + 1).padStart(3, "0");
 
-/** Absolute URL for a single frame. */
-export const frameUrl = (seq: FrameSequence, index: number) =>
-  `${seq.dir}/frame_${pad(index + 1)}.jpg`;
+  let suffix = "";
 
+  if (sequence.dir.includes("/home/mobile")) {
+    suffix = " (1)";
+  } else if (sequence.dir.includes("/manufacturing/desktop")) {
+    suffix = " (2)";
+  } else if (sequence.dir.includes("/manufacturing/mobile")) {
+    suffix = " (3)";
+  }
+
+  return `${sequence.dir}/ezgif-frame-${frameNumber}${suffix}.jpg`;
+}
+
+/**
+ * Home page cinematic scroll sequence.
+ *
+ * Desktop:
+ * public/frames/home/desktop/
+ *
+ * Mobile:
+ * public/frames/home/mobile/
+ */
 export const homeFrames: FrameSet = {
-  desktop: { dir: "/frames/home/desktop", count: 50, width: 1280, height: 720 },
-  mobile: { dir: "/frames/home/mobile", count: 50, width: 720, height: 1280 },
+  desktop: {
+    dir: "/frames/home/desktop",
+    count: 50,
+    width: 1280,
+    height: 720,
+  },
+
+  mobile: {
+    dir: "/frames/home/mobile",
+    count: 50,
+    width: 720,
+    height: 1280,
+  },
 };
 
+/**
+ * Manufacturing page cinematic scroll sequence.
+ *
+ * Desktop:
+ * public/frames/manufacturing/desktop/
+ *
+ * Mobile:
+ * public/frames/manufacturing/mobile/
+ */
 export const manufacturingFrames: FrameSet = {
-  desktop: { dir: "/frames/manufacturing/desktop", count: 50, width: 1280, height: 720 },
-  mobile: { dir: "/frames/manufacturing/mobile", count: 50, width: 720, height: 1280 },
+  desktop: {
+    dir: "/frames/manufacturing/desktop",
+    count: 50,
+    width: 1280,
+    height: 720,
+  },
+
+  mobile: {
+    dir: "/frames/manufacturing/mobile",
+    count: 50,
+    width: 720,
+    height: 1280,
+  },
 };

@@ -1,209 +1,364 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
-import { useFrameSequence } from "@/animations/useFrameSequence";
-import { useReducedMotion } from "@/hooks/use-reduced-motion";
-import { useViewportKind } from "@/hooks/use-viewport";
-import { initGsap } from "@/lib/gsap";
+import { useState, useEffect, useLayoutEffect, useRef, type ReactNode } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
 import type { FrameSet } from "@/data/frames";
-import { cn } from "@/lib/utils";
+import { useFrameSequence } from "@/animations/useFrameSequence";
 
-export type Chapter = { no: string; title: string; copy: string };
+gsap.registerPlugin(ScrollTrigger);
 
-type Props = {
+interface ScrollFrameAnimationProps {
   frames: FrameSet;
-  /** Poster shown before frames load, on reduced motion, or if frames are absent. */
-  poster: string;
-  posterAlt: string;
-  /** ScrollTrigger scroll distance for the pinned canvas. */
+
+  /**
+   * Optional fallback image shown before the first frame loads.
+   */
+  poster?: string;
+
+  posterAlt?: string;
+
+  /**
+   * Approximate scroll distance in pixels.
+   */
   scrollLength?: number;
-  chapters?: Chapter[];
+
+  /**
+   * Optional chapter markers.
+   *
+   * The component does not require chapters to render the animation.
+   */
+  chapters?: unknown[];
+
   children?: ReactNode;
+
   className?: string;
-};
+}
 
 /**
- * Canvas-driven, scroll-scrubbed frame sequence.
+ * Canvas-based scroll frame animation.
  *
- * - one canvas, no DOM image per frame
- * - GSAP ScrollTrigger maps scroll progress to a frame index
- * - painting happens inside requestAnimationFrame
- * - devicePixelRatio is honoured but capped (mobile memory)
- * - listeners + ScrollTriggers are disposed on unmount
- * - reduced motion => static poster, no sequence download at all
+ * Desktop and mobile sequences are selected automatically
+ * by the viewport width.
  */
 export function ScrollFrameAnimation({
   frames,
   poster,
-  posterAlt,
-  scrollLength = 4000,
-  chapters = [],
+  posterAlt = "",
+  scrollLength = 5000,
   children,
-  className,
-}: Props) {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const chapterRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const reduced = useReducedMotion();
-  const viewport = useViewportKind();
-  const [near, setNear] = useState(false);
+  className = "",
+}: ScrollFrameAnimationProps) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const pinRef = useRef<HTMLDivElement | null>(null);
 
-  const sequence = reduced || !viewport ? null : frames[viewport];
-  const { frameAt, setPriority, firstReady, unavailable } = useFrameSequence(
-    sequence,
-    near,
-  );
+  const viewportRef = useRef<"desktop" | "mobile" | null>(null);
 
-  // Lazy activation: only start downloading when the section approaches.
+  const currentFrameRef = useRef(0);
+  const frameImagesRef = useRef<Array<HTMLImageElement | null>>([]);
+  const progressRef = useRef(0);
+
+  const sequence = useResponsiveSequence(frames);
+
+  const { frames: loadedFrames, isReady } = useFrameSequence(sequence, {
+    preloadCount: 5,
+  });
+
+  frameImagesRef.current = loadedFrames;
+
+  /**
+   * Keep viewport selection stable for the current mounted component.
+   */
   useEffect(() => {
-    const el = sectionRef.current;
-    if (!el || reduced) return;
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          setNear(true);
-          io.disconnect();
-        }
-      },
-      { rootMargin: "150% 0px" },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [reduced]);
+    if (!sequence) return;
 
-  // Canvas painting + ScrollTrigger scrub.
-  useEffect(() => {
-    if (reduced || !sequence) return;
+    viewportRef.current = window.innerWidth < 768 ? "mobile" : "desktop";
+  }, [sequence]);
+
+  /**
+   * Configure canvas dimensions.
+   */
+  useLayoutEffect(() => {
     const canvas = canvasRef.current;
-    const section = sectionRef.current;
-    if (!canvas || !section) return;
 
-    const ctx = canvas.getContext("2d", { alpha: false });
-    if (!ctx) return;
+    if (!canvas || !sequence) return;
 
-    const { gsap, ScrollTrigger } = initGsap();
-    const state = { index: 0 };
-    let raf = 0;
-    let dirty = true;
+    const context = canvas.getContext("2d", {
+      alpha: true,
+      desynchronized: true,
+    });
 
-    const sizeCanvas = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, window.innerWidth < 768 ? 1.5 : 2);
+    if (!context) return;
+
+    const resizeCanvas = () => {
       const rect = canvas.getBoundingClientRect();
-      canvas.width = Math.round(rect.width * dpr);
-      canvas.height = Math.round(rect.height * dpr);
-      dirty = true;
-    };
 
-    const paint = () => {
-      const image = frameAt(Math.round(state.index));
-      if (!image) return;
-      const cw = canvas.width;
-      const ch = canvas.height;
-      // Cover, centred — the source aspect ratio is never distorted.
-      const scale = Math.max(cw / image.naturalWidth, ch / image.naturalHeight);
-      const w = image.naturalWidth * scale;
-      const h = image.naturalHeight * scale;
-      ctx.fillStyle = "#141414";
-      ctx.fillRect(0, 0, cw, ch);
-      ctx.drawImage(image, (cw - w) / 2, (ch - h) / 2, w, h);
-    };
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
-    const tick = () => {
-      if (dirty) {
-        paint();
-        dirty = false;
+      const width = Math.max(1, Math.round(rect.width * dpr));
+      const height = Math.max(1, Math.round(rect.height * dpr));
+
+      if (canvas.width !== width || canvas.height !== height) {
+        canvas.width = width;
+        canvas.height = height;
       }
-      raf = requestAnimationFrame(tick);
+
+      context.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
 
-    sizeCanvas();
-    raf = requestAnimationFrame(tick);
+    resizeCanvas();
 
-    const trigger = ScrollTrigger.create({
-      trigger: section,
-      start: "top top",
-      end: `+=${scrollLength}`,
-      pin: true,
-      pinSpacing: true,
-      scrub: 0.6,
-      onUpdate: (self) => {
-        const next = self.progress * (sequence.count - 1);
-        state.index = next;
-        setPriority(Math.round(next));
-        dirty = true;
-      },
-    });
+    const observer = new ResizeObserver(resizeCanvas);
 
-    // Chapter copy fades in and out with scroll, never all at once.
-    const chapterTriggers = chapterRefs.current.filter(Boolean).map((el, i, arr) => {
-      const span = scrollLength / arr.length;
-      gsap.set(el, { autoAlpha: 0, y: 24 });
-      return ScrollTrigger.create({
-        trigger: section,
-        start: `top+=${i * span} top`,
-        end: `top+=${(i + 1) * span} top`,
-        onEnter: () => gsap.to(el, { autoAlpha: 1, y: 0, duration: 0.6, ease: "power2.out" }),
-        onLeave: () => gsap.to(el, { autoAlpha: 0, y: -16, duration: 0.4 }),
-        onEnterBack: () => gsap.to(el, { autoAlpha: 1, y: 0, duration: 0.5 }),
-        onLeaveBack: () => gsap.to(el, { autoAlpha: 0, y: 24, duration: 0.4 }),
-      });
-    });
-
-    const onResize = () => {
-      sizeCanvas();
-      ScrollTrigger.refresh();
-    };
-    window.addEventListener("resize", onResize);
+    observer.observe(canvas);
 
     return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("resize", onResize);
-      trigger.kill();
-      chapterTriggers.forEach((t) => t.kill());
+      observer.disconnect();
     };
-  }, [sequence, reduced, scrollLength, frameAt, setPriority]);
+  }, [sequence]);
 
-  const showPoster = reduced || unavailable || !firstReady;
+  /**
+   * Draw a frame while preserving its aspect ratio.
+   */
+  const drawFrame = (frameIndex: number, force = false) => {
+    const canvas = canvasRef.current;
+
+    if (!canvas || !sequence) return;
+
+    const image = frameImagesRef.current[frameIndex];
+
+    if (!image || !image.complete) return;
+
+    if (!force && currentFrameRef.current === frameIndex) {
+      return;
+    }
+
+    const context = canvas.getContext("2d", {
+      alpha: true,
+      desynchronized: true,
+    });
+
+    if (!context) return;
+
+    const rect = canvas.getBoundingClientRect();
+
+    const width = rect.width;
+    const height = rect.height;
+
+    if (width <= 0 || height <= 0) return;
+
+    context.clearRect(0, 0, width, height);
+
+    const imageRatio = image.naturalWidth / image.naturalHeight;
+    const canvasRatio = width / height;
+
+    let drawWidth = width;
+    let drawHeight = height;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    /**
+     * Cover behavior:
+     *
+     * The frame fills the entire canvas without stretching.
+     * Some image edges may extend beyond the viewport.
+     */
+    if (imageRatio > canvasRatio) {
+      drawHeight = height;
+      drawWidth = height * imageRatio;
+      offsetX = (width - drawWidth) / 2;
+    } else {
+      drawWidth = width;
+      drawHeight = width / imageRatio;
+      offsetY = (height - drawHeight) / 2;
+    }
+
+    context.imageSmoothingEnabled = true;
+    context.imageSmoothingQuality = "high";
+
+    context.drawImage(image, offsetX, offsetY, drawWidth, drawHeight);
+
+    currentFrameRef.current = frameIndex;
+  };
+
+  /**
+   * Draw first available frame as soon as it arrives.
+   */
+  useEffect(() => {
+    if (!isReady) return;
+
+    const firstAvailable = frameImagesRef.current.findIndex((frame) => frame !== null);
+
+    if (firstAvailable >= 0) {
+      drawFrame(firstAvailable, true);
+    }
+  }, [isReady, loadedFrames]);
+
+  /**
+   * Redraw the current frame when the viewport changes.
+   */
+  useEffect(() => {
+    const handleResize = () => {
+      const current = currentFrameRef.current;
+
+      requestAnimationFrame(() => {
+        drawFrame(current, true);
+      });
+    };
+
+    window.addEventListener("resize", handleResize, {
+      passive: true,
+    });
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [sequence]);
+
+  /**
+   * GSAP ScrollTrigger.
+   */
+  useLayoutEffect(() => {
+    const container = containerRef.current;
+    const pin = pinRef.current;
+
+    if (!container || !pin || !sequence) return;
+
+    const context = gsap.context(() => {
+      const trigger = ScrollTrigger.create({
+        trigger: container,
+
+        start: "top top",
+
+        end: `+=${scrollLength}`,
+
+        pin,
+
+        scrub: 0.35,
+
+        anticipatePin: 1,
+
+        invalidateOnRefresh: true,
+
+        onUpdate: (self) => {
+          progressRef.current = self.progress;
+
+          const totalFrames = sequence.count;
+
+          if (totalFrames <= 1) return;
+
+          const frameIndex = Math.min(
+            totalFrames - 1,
+            Math.max(0, Math.round(self.progress * (totalFrames - 1))),
+          );
+
+          if (frameIndex === currentFrameRef.current) {
+            return;
+          }
+
+          /**
+           * If the requested frame hasn't loaded yet,
+           * use the nearest loaded frame.
+           */
+          let targetIndex = frameIndex;
+
+          if (!frameImagesRef.current[targetIndex]) {
+            const direction = targetIndex > currentFrameRef.current ? 1 : -1;
+
+            let fallback = targetIndex;
+
+            while (fallback >= 0 && fallback < totalFrames && !frameImagesRef.current[fallback]) {
+              fallback -= direction;
+            }
+
+            if (fallback >= 0 && fallback < totalFrames && frameImagesRef.current[fallback]) {
+              targetIndex = fallback;
+            } else {
+              return;
+            }
+          }
+
+          drawFrame(targetIndex);
+        },
+      });
+
+      ScrollTrigger.refresh();
+
+      return () => {
+        trigger.kill();
+      };
+    }, container);
+
+    return () => {
+      context.revert();
+    };
+  }, [sequence, scrollLength]);
+
+  /**
+   * Respect reduced motion.
+   *
+   * We still render the first available frame but avoid
+   * creating the scroll-driven animation.
+   */
+  useEffect(() => {
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
+
+    const container = containerRef.current;
+
+    if (!container) return;
+
+    const pin = pinRef.current;
+
+    if (!pin) return;
+
+    pin.style.position = "relative";
+
+    return;
+  }, []);
 
   return (
-    <div ref={sectionRef} className={cn("relative h-screen w-full overflow-hidden bg-ink", className)}>
-      <canvas
-        ref={canvasRef}
-        aria-hidden="true"
-        className={cn(
-          "absolute inset-0 h-full w-full transition-opacity duration-700",
-          showPoster ? "opacity-0" : "opacity-100",
+    <section ref={containerRef} className={`relative ${className}`}>
+      <div ref={pinRef} className="relative h-[100svh] w-full overflow-hidden">
+        {!isReady && poster && (
+          <img src={poster} alt={posterAlt} className="absolute inset-0 size-full object-cover" />
         )}
-      />
-      <img
-        src={poster}
-        alt={posterAlt}
-        className={cn(
-          "absolute inset-0 h-full w-full object-cover transition-opacity duration-700",
-          showPoster ? "opacity-100" : "opacity-0",
-        )}
-      />
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/25 to-ink/50" />
 
-      {/* Chapter copy sits in a fixed column so it never covers the frame centre */}
-      {chapters.length > 0 && (
-        <div className="pointer-events-none absolute inset-0">
-          {chapters.map((chapter, i) => (
-            <div
-              key={chapter.no}
-              ref={(el) => {
-                chapterRefs.current[i] = el;
-              }}
-              className="absolute bottom-16 left-6 max-w-sm sm:bottom-20 sm:left-12 md:bottom-24 md:left-16"
-            >
-              <p className="label-xs text-primary">{chapter.no} — {chapter.title}</p>
-              <p className="mt-3 font-display text-2xl leading-tight text-ink-foreground sm:text-3xl md:text-4xl">
-                {chapter.copy}
-              </p>
-            </div>
-          ))}
-        </div>
-      )}
+        <canvas ref={canvasRef} aria-hidden="true" className="absolute inset-0 size-full" />
 
-      {children}
-    </div>
+        <div className="relative z-10 size-full">{children}</div>
+      </div>
+    </section>
   );
+}
+
+/* -------------------------------------------------------------------------- */
+/* RESPONSIVE SEQUENCE                                                        */
+/* -------------------------------------------------------------------------- */
+
+function useResponsiveSequence(frames: FrameSet) {
+  const [viewport, setViewport] = useState<"desktop" | "mobile" | null>(null);
+
+  useEffect(() => {
+    const updateViewport = () => {
+      setViewport(window.innerWidth < 768 ? "mobile" : "desktop");
+    };
+
+    updateViewport();
+
+    window.addEventListener("resize", updateViewport, {
+      passive: true,
+    });
+
+    return () => {
+      window.removeEventListener("resize", updateViewport);
+    };
+  }, []);
+
+  if (!viewport) {
+    return null;
+  }
+
+  return frames[viewport];
 }

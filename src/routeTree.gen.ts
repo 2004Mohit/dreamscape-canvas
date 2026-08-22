@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as ArchitectsRouteImport } from './routes/architects'
+import { Route as EnquiryRouteImport } from './routes/enquiry'
 import { Route as ManufacturingRouteImport } from './routes/manufacturing'
 import { Route as MaterialsRouteImport } from './routes/materials'
 import { Route as ProjectsRouteImport } from './routes/projects'
@@ -30,6 +31,11 @@ const AboutRoute = AboutRouteImport.update({
 const ArchitectsRoute = ArchitectsRouteImport.update({
   id: '/architects',
   path: '/architects',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EnquiryRoute = EnquiryRouteImport.update({
+  id: '/enquiry',
+  path: '/enquiry',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ManufacturingRoute = ManufacturingRouteImport.update({
@@ -57,6 +63,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/architects': typeof ArchitectsRoute
+  '/enquiry': typeof EnquiryRoute
   '/manufacturing': typeof ManufacturingRoute
   '/materials': typeof MaterialsRoute
   '/projects': typeof ProjectsRoute
@@ -66,6 +73,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/architects': typeof ArchitectsRoute
+  '/enquiry': typeof EnquiryRoute
   '/manufacturing': typeof ManufacturingRoute
   '/materials': typeof MaterialsRoute
   '/projects': typeof ProjectsRoute
@@ -76,6 +84,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/architects': typeof ArchitectsRoute
+  '/enquiry': typeof EnquiryRoute
   '/manufacturing': typeof ManufacturingRoute
   '/materials': typeof MaterialsRoute
   '/projects': typeof ProjectsRoute
@@ -87,6 +96,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/architects'
+    | '/enquiry'
     | '/manufacturing'
     | '/materials'
     | '/projects'
@@ -96,6 +106,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/architects'
+    | '/enquiry'
     | '/manufacturing'
     | '/materials'
     | '/projects'
@@ -105,6 +116,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/architects'
+    | '/enquiry'
     | '/manufacturing'
     | '/materials'
     | '/projects'
@@ -115,6 +127,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   ArchitectsRoute: typeof ArchitectsRoute
+  EnquiryRoute: typeof EnquiryRoute
   ManufacturingRoute: typeof ManufacturingRoute
   MaterialsRoute: typeof MaterialsRoute
   ProjectsRoute: typeof ProjectsRoute
@@ -142,6 +155,13 @@ declare module '@tanstack/react-router' {
       path: '/architects'
       fullPath: '/architects'
       preLoaderRoute: typeof ArchitectsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/enquiry': {
+      id: '/enquiry'
+      path: '/enquiry'
+      fullPath: '/enquiry'
+      preLoaderRoute: typeof EnquiryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/manufacturing': {
@@ -179,6 +199,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   ArchitectsRoute: ArchitectsRoute,
+  EnquiryRoute: EnquiryRoute,
   ManufacturingRoute: ManufacturingRoute,
   MaterialsRoute: MaterialsRoute,
   ProjectsRoute: ProjectsRoute,
