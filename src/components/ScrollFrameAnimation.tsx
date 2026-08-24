@@ -1,228 +1,156 @@
-import { useState, useEffect, useLayoutEffect, useRef, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-import type { FrameSet } from "@/data/frames";
-import { useFrameSequence } from "@/animations/useFrameSequence";
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 
 gsap.registerPlugin(ScrollTrigger);
 
-interface ScrollFrameAnimationProps {
-  frames: FrameSet;
+export type ScrollVideoSource = {
+  desktop: string;
+  mobile: string;
+};
 
-  /**
-   * Optional fallback image shown before the first frame loads.
-   */
+interface ScrollFrameAnimationProps {
+  videos: ScrollVideoSource;
+
   poster?: string;
 
   posterAlt?: string;
 
-  /**
-   * Approximate scroll distance in pixels.
-   */
   scrollLength?: number;
-
-  /**
-   * Optional chapter markers.
-   *
-   * The component does not require chapters to render the animation.
-   */
-  chapters?: unknown[];
 
   children?: ReactNode;
 
   className?: string;
+
+  skipLabel?: string;
 }
 
-/**
- * Canvas-based scroll frame animation.
- *
- * Desktop and mobile sequences are selected automatically
- * by the viewport width.
- */
 export function ScrollFrameAnimation({
-  frames,
+  videos,
+
   poster,
+
   posterAlt = "",
+
   scrollLength = 5000,
+
   children,
+
   className = "",
+
+  skipLabel = "Skip Intro",
 }: ScrollFrameAnimationProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
   const pinRef = useRef<HTMLDivElement | null>(null);
 
-  const viewportRef = useRef<"desktop" | "mobile" | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  const currentFrameRef = useRef(0);
-  const frameImagesRef = useRef<Array<HTMLImageElement | null>>([]);
-  const progressRef = useRef(0);
+  const scrollTriggerRef = useRef<ScrollTrigger | null>(null);
 
-  const sequence = useResponsiveSequence(frames);
+  const [viewport, setViewport] = useState<"desktop" | "mobile">(() =>
+    typeof window !== "undefined" && window.innerWidth < 768 ? "mobile" : "desktop",
+  );
 
-  const { frames: loadedFrames, isReady } = useFrameSequence(sequence, {
-    preloadCount: 5,
-  });
+  const [videoReady, setVideoReady] = useState(false);
 
-  frameImagesRef.current = loadedFrames;
+  const [showSkip, setShowSkip] = useState(true);
 
-  /**
-   * Keep viewport selection stable for the current mounted component.
+  const prefersReducedMotion = useReducedMotion();
+
+  /*
+   * ------------------------------------------------
+   * Responsive video
+   * ------------------------------------------------
    */
+
   useEffect(() => {
-    if (!sequence) return;
+    const mediaQuery = window.matchMedia("(max-width: 767px)");
 
-    viewportRef.current = window.innerWidth < 768 ? "mobile" : "desktop";
-  }, [sequence]);
-
-  /**
-   * Configure canvas dimensions.
-   */
-  useLayoutEffect(() => {
-    const canvas = canvasRef.current;
-
-    if (!canvas || !sequence) return;
-
-    const context = canvas.getContext("2d", {
-      alpha: true,
-      desynchronized: true,
-    });
-
-    if (!context) return;
-
-    const resizeCanvas = () => {
-      const rect = canvas.getBoundingClientRect();
-
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-
-      const width = Math.max(1, Math.round(rect.width * dpr));
-      const height = Math.max(1, Math.round(rect.height * dpr));
-
-      if (canvas.width !== width || canvas.height !== height) {
-        canvas.width = width;
-        canvas.height = height;
-      }
-
-      context.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const updateViewport = () => {
+      setViewport(mediaQuery.matches ? "mobile" : "desktop");
     };
 
-    resizeCanvas();
+    updateViewport();
 
-    const observer = new ResizeObserver(resizeCanvas);
-
-    observer.observe(canvas);
+    mediaQuery.addEventListener("change", updateViewport);
 
     return () => {
-      observer.disconnect();
+      mediaQuery.removeEventListener("change", updateViewport);
     };
-  }, [sequence]);
+  }, []);
 
-  /**
-   * Draw a frame while preserving its aspect ratio.
+  const videoSrc = viewport === "mobile" ? videos.mobile : videos.desktop;
+
+  /*
+   * ------------------------------------------------
+   * Video metadata
+   * ------------------------------------------------
    */
-  const drawFrame = (frameIndex: number, force = false) => {
-    const canvas = canvasRef.current;
 
-    if (!canvas || !sequence) return;
+  useEffect(() => {
+    const video = videoRef.current;
 
-    const image = frameImagesRef.current[frameIndex];
-
-    if (!image || !image.complete) return;
-
-    if (!force && currentFrameRef.current === frameIndex) {
+    if (!video) {
       return;
     }
 
-    const context = canvas.getContext("2d", {
-      alpha: true,
-      desynchronized: true,
-    });
+    setVideoReady(false);
 
-    if (!context) return;
+    video.pause();
 
-    const rect = canvas.getBoundingClientRect();
+    video.currentTime = 0;
 
-    const width = rect.width;
-    const height = rect.height;
-
-    if (width <= 0 || height <= 0) return;
-
-    context.clearRect(0, 0, width, height);
-
-    const imageRatio = image.naturalWidth / image.naturalHeight;
-    const canvasRatio = width / height;
-
-    let drawWidth = width;
-    let drawHeight = height;
-    let offsetX = 0;
-    let offsetY = 0;
-
-    /**
-     * Cover behavior:
-     *
-     * The frame fills the entire canvas without stretching.
-     * Some image edges may extend beyond the viewport.
-     */
-    if (imageRatio > canvasRatio) {
-      drawHeight = height;
-      drawWidth = height * imageRatio;
-      offsetX = (width - drawWidth) / 2;
-    } else {
-      drawWidth = width;
-      drawHeight = width / imageRatio;
-      offsetY = (height - drawHeight) / 2;
-    }
-
-    context.imageSmoothingEnabled = true;
-    context.imageSmoothingQuality = "high";
-
-    context.drawImage(image, offsetX, offsetY, drawWidth, drawHeight);
-
-    currentFrameRef.current = frameIndex;
-  };
-
-  /**
-   * Draw first available frame as soon as it arrives.
-   */
-  useEffect(() => {
-    if (!isReady) return;
-
-    const firstAvailable = frameImagesRef.current.findIndex((frame) => frame !== null);
-
-    if (firstAvailable >= 0) {
-      drawFrame(firstAvailable, true);
-    }
-  }, [isReady, loadedFrames]);
-
-  /**
-   * Redraw the current frame when the viewport changes.
-   */
-  useEffect(() => {
-    const handleResize = () => {
-      const current = currentFrameRef.current;
-
-      requestAnimationFrame(() => {
-        drawFrame(current, true);
-      });
+    const handleLoadedMetadata = () => {
+      setVideoReady(true);
     };
 
-    window.addEventListener("resize", handleResize, {
-      passive: true,
-    });
+    const handleLoadedData = () => {
+      setVideoReady(true);
+    };
+
+    video.addEventListener("loadedmetadata", handleLoadedMetadata);
+
+    video.addEventListener("loadeddata", handleLoadedData);
 
     return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [sequence]);
+      video.removeEventListener("loadedmetadata", handleLoadedMetadata);
 
-  /**
-   * GSAP ScrollTrigger.
+      video.removeEventListener("loadeddata", handleLoadedData);
+    };
+  }, [videoSrc]);
+
+  /*
+   * ------------------------------------------------
+   * ScrollTrigger
+   * ------------------------------------------------
    */
+
   useLayoutEffect(() => {
+    if (prefersReducedMotion) {
+      return;
+    }
+
+    if (!videoReady) {
+      return;
+    }
+
     const container = containerRef.current;
+
     const pin = pinRef.current;
 
-    if (!container || !pin || !sequence) return;
+    const video = videoRef.current;
+
+    if (!container || !pin || !video) {
+      return;
+    }
+
+    if (!Number.isFinite(video.duration)) {
+      return;
+    }
 
     const context = gsap.context(() => {
       const trigger = ScrollTrigger.create({
@@ -234,131 +162,198 @@ export function ScrollFrameAnimation({
 
         pin,
 
-        scrub: 0.35,
+        scrub: 0.15,
 
         anticipatePin: 1,
 
         invalidateOnRefresh: true,
 
         onUpdate: (self) => {
-          progressRef.current = self.progress;
-
-          const totalFrames = sequence.count;
-
-          if (totalFrames <= 1) return;
-
-          const frameIndex = Math.min(
-            totalFrames - 1,
-            Math.max(0, Math.round(self.progress * (totalFrames - 1))),
-          );
-
-          if (frameIndex === currentFrameRef.current) {
+          if (!video || !Number.isFinite(video.duration)) {
             return;
           }
 
-          /**
-           * If the requested frame hasn't loaded yet,
-           * use the nearest loaded frame.
+          const progress = Math.min(1, Math.max(0, self.progress));
+
+          /*
+           * Convert scroll progress
+           * into video time.
            */
-          let targetIndex = frameIndex;
+          const targetTime = progress * video.duration;
 
-          if (!frameImagesRef.current[targetIndex]) {
-            const direction = targetIndex > currentFrameRef.current ? 1 : -1;
-
-            let fallback = targetIndex;
-
-            while (fallback >= 0 && fallback < totalFrames && !frameImagesRef.current[fallback]) {
-              fallback -= direction;
-            }
-
-            if (fallback >= 0 && fallback < totalFrames && frameImagesRef.current[fallback]) {
-              targetIndex = fallback;
-            } else {
-              return;
-            }
+          /*
+           * Avoid unnecessary writes.
+           */
+          if (Math.abs(video.currentTime - targetTime) > 0.01) {
+            video.currentTime = targetTime;
           }
 
-          drawFrame(targetIndex);
+          /*
+           * Hide skip button near
+           * the end of animation.
+           */
+          setShowSkip(self.progress < 0.95);
         },
       });
 
-      ScrollTrigger.refresh();
+      scrollTriggerRef.current = trigger;
 
-      return () => {
-        trigger.kill();
-      };
+      ScrollTrigger.refresh();
     }, container);
 
     return () => {
+      scrollTriggerRef.current = null;
+
       context.revert();
     };
-  }, [sequence, scrollLength]);
+  }, [videoReady, videoSrc, scrollLength, prefersReducedMotion]);
 
-  /**
-   * Respect reduced motion.
-   *
-   * We still render the first available frame but avoid
-   * creating the scroll-driven animation.
+  /*
+   * ------------------------------------------------
+   * Reduced motion
+   * ------------------------------------------------
    */
+
   useEffect(() => {
-    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (!prefersReducedMotion) {
+      return;
+    }
+
+    const video = videoRef.current;
+
+    if (!video) {
+      return;
+    }
+
+    video.pause();
+
+    video.currentTime = 0;
+  }, [prefersReducedMotion]);
+
+  /*
+   * ------------------------------------------------
+   * Skip animation
+   * ------------------------------------------------
+   */
+
+  const skipAnimation = () => {
+    const trigger = scrollTriggerRef.current;
+
+    if (trigger) {
+      window.scrollTo({
+        top: trigger.end,
+        behavior: "smooth",
+      });
+
       return;
     }
 
     const container = containerRef.current;
 
-    if (!container) return;
+    if (!container) {
+      return;
+    }
 
-    const pin = pinRef.current;
+    window.scrollTo({
+      top: window.scrollY + container.getBoundingClientRect().height,
 
-    if (!pin) return;
+      behavior: "smooth",
+    });
+  };
 
-    pin.style.position = "relative";
-
-    return;
-  }, []);
+  /*
+   * ------------------------------------------------
+   * Render
+   * ------------------------------------------------
+   */
 
   return (
-    <section ref={containerRef} className={`relative ${className}`}>
-      <div ref={pinRef} className="relative h-[100svh] w-full overflow-hidden">
-        {!isReady && poster && (
-          <img src={poster} alt={posterAlt} className="absolute inset-0 size-full object-cover" />
+    <section ref={containerRef} className={`relative w-full ${className}`}>
+      <div
+        ref={pinRef}
+        className="
+          relative
+          h-[100svh]
+          w-full
+          overflow-hidden
+          bg-black
+        "
+      >
+        <video
+          ref={videoRef}
+          key={videoSrc}
+          src={videoSrc}
+          poster={poster}
+          muted
+          playsInline
+          preload="auto"
+          aria-label={posterAlt}
+          className="
+  absolute
+  inset-0
+  h-full
+  w-full
+  object-cover
+  object-center
+"
+        />
+
+        {!videoReady && poster && (
+          <img
+            src={poster}
+            alt={posterAlt}
+            className="
+  absolute
+  inset-0
+  h-full
+  w-full
+  object-cover
+  object-center
+"
+          />
         )}
 
-        <canvas ref={canvasRef} aria-hidden="true" className="absolute inset-0 size-full" />
-
         <div className="relative z-10 size-full">{children}</div>
+
+        {showSkip && !prefersReducedMotion && (
+          <button
+            type="button"
+            onClick={skipAnimation}
+            className="
+              absolute
+              bottom-6
+              right-5
+              z-30
+              inline-flex
+              items-center
+              gap-2
+              rounded-full
+              border
+              border-white/30
+              bg-black/25
+              px-4
+              py-2.5
+              text-[10px]
+              font-medium
+              uppercase
+              tracking-[0.2em]
+              text-white
+              backdrop-blur-md
+              transition-all
+              duration-300
+              hover:border-white/60
+              hover:bg-black/40
+              sm:bottom-8
+              sm:right-8
+            "
+            aria-label={skipLabel}
+          >
+            <span>{skipLabel}</span>
+
+            <span aria-hidden="true">→</span>
+          </button>
+        )}
       </div>
     </section>
   );
-}
-
-/* -------------------------------------------------------------------------- */
-/* RESPONSIVE SEQUENCE                                                        */
-/* -------------------------------------------------------------------------- */
-
-function useResponsiveSequence(frames: FrameSet) {
-  const [viewport, setViewport] = useState<"desktop" | "mobile" | null>(null);
-
-  useEffect(() => {
-    const updateViewport = () => {
-      setViewport(window.innerWidth < 768 ? "mobile" : "desktop");
-    };
-
-    updateViewport();
-
-    window.addEventListener("resize", updateViewport, {
-      passive: true,
-    });
-
-    return () => {
-      window.removeEventListener("resize", updateViewport);
-    };
-  }, []);
-
-  if (!viewport) {
-    return null;
-  }
-
-  return frames[viewport];
 }

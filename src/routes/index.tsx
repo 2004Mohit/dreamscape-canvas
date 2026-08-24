@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { scrollVideos } from "@/data/scrollVideos";
 import {
   ArrowDown,
   ArrowRight,
@@ -74,11 +75,10 @@ function HeroSection() {
   return (
     <section className="relative">
       <ScrollFrameAnimation
-        frames={homeFrames}
+        videos={scrollVideos.home}
         poster={images["cover-hero"]}
         posterAlt="Dream Kcreation interior design project"
         scrollLength={5000}
-        chapters={homeChapters}
       >
         <div className="absolute inset-0 z-10 flex items-end">
           <div className="mx-auto flex w-full max-w-[1600px] flex-col px-5 pb-10 sm:px-8 sm:pb-14 lg:px-12 lg:pb-16">
@@ -327,7 +327,7 @@ function ManufacturingPreview() {
     <section className="relative overflow-hidden bg-ink py-24 sm:py-32 lg:py-40">
       <div className="absolute inset-0">
         <img
-          src={images["craft-team-03"]}
+          src={images["manufacturing-cover"]}
           alt=""
           aria-hidden="true"
           loading="lazy"

@@ -16,7 +16,10 @@ export const Route = createFileRoute("/about")({
           "A family-run Jodhpur interior studio built on generations of Rajasthani carpentry — meet the Suthar brothers behind Dream Kcreation.",
       },
       { property: "og:title", content: "About Dream Kcreation — Design & Execution" },
-      { property: "og:description", content: "From legacy to lifestyle: craft, care and creation from Jodhpur, Rajasthan." },
+      {
+        property: "og:description",
+        content: "From legacy to lifestyle: craft, care and creation from Jodhpur, Rajasthan.",
+      },
       { property: "og:type", content: "article" },
       { property: "og:url", content: "/about" },
     ],
@@ -34,17 +37,32 @@ function AboutPage() {
         lead={philosophy.statement}
         image="craft-team-01"
         alt="The Dream Kcreation team at work in Jodhpur"
+        position="center 25%"
       />
 
       <section className="mx-auto max-w-[1600px] px-5 py-24 sm:px-8 sm:py-32 lg:px-12">
         <div className="grid gap-14 lg:grid-cols-2 lg:gap-20">
           <SectionHeading eyebrow="Our story" title={brandStory.heading} lead={brandStory.intro}>
-            <p className="mt-5 text-base leading-relaxed text-muted-foreground">{brandStory.tale}</p>
-            <p className="mt-5 text-base leading-relaxed text-muted-foreground">{brandStory.intent}</p>
+            <p className="mt-5 text-base leading-relaxed text-muted-foreground">
+              {brandStory.tale}
+            </p>
+            <p className="mt-5 text-base leading-relaxed text-muted-foreground">
+              {brandStory.intent}
+            </p>
           </SectionHeading>
           <Reveal className="grid grid-cols-2 gap-4 self-start">
-            <img src={images["craft-team-02"]} alt="Craftsmanship on the workshop floor" loading="lazy" className="aspect-[3/4] w-full object-cover" />
-            <img src={images["craft-team-03"]} alt="Site execution in progress" loading="lazy" className="mt-10 aspect-[3/4] w-full object-cover" />
+            <img
+              src={images["craft-team-02"]}
+              alt="Craftsmanship on the workshop floor"
+              loading="lazy"
+              className="aspect-[3/4] w-full object-cover"
+            />
+            <img
+              src={images["craft-team-03"]}
+              alt="Site execution in progress"
+              loading="lazy"
+              className="mt-10 aspect-[3/4] w-full object-cover"
+            />
           </Reveal>
         </div>
       </section>
@@ -80,7 +98,12 @@ function AboutPage() {
           <SectionHeading eyebrow="Why us" title="What working with us actually means." />
           <ul className="mt-14 grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
             {differentiators.map((item, i) => (
-              <Reveal as="li" key={item.title} delay={i * 0.03} className="border-t border-border pt-5">
+              <Reveal
+                as="li"
+                key={item.title}
+                delay={i * 0.03}
+                className="border-t border-border pt-5"
+              >
                 <p className="label-xs text-primary">{String(i + 1).padStart(2, "0")}</p>
                 <h3 className="mt-3 font-display text-2xl text-foreground">{item.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.copy}</p>

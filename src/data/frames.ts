@@ -24,7 +24,7 @@ export function frameUrl(sequence: FrameSequence, index: number): string {
   if (sequence.dir.includes("/home/mobile")) {
     suffix = " (1)";
   } else if (sequence.dir.includes("/manufacturing/desktop")) {
-    suffix = " (2)";
+    suffix = " (1)";
   } else if (sequence.dir.includes("/manufacturing/mobile")) {
     suffix = " (3)";
   }
@@ -69,7 +69,7 @@ export const homeFrames: FrameSet = {
 export const manufacturingFrames: FrameSet = {
   desktop: {
     dir: "/frames/manufacturing/desktop",
-    count: 50,
+    count: 300,
     width: 1280,
     height: 720,
   },

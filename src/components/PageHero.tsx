@@ -6,12 +6,14 @@ export function PageHero({
   lead,
   image,
   alt,
+  position = "center",
 }: {
   eyebrow: string;
   title: string;
   lead?: string;
   image: ImageKey;
   alt: string;
+  position?: string;
 }) {
   return (
     <section className="relative isolate flex min-h-[70vh] items-end overflow-hidden bg-ink pb-14 pt-32 sm:min-h-[80vh] sm:pb-20">
@@ -19,6 +21,7 @@ export function PageHero({
         src={images[image]}
         alt={alt}
         className="absolute inset-0 -z-10 size-full object-cover"
+        style={{ objectPosition: position }}
         loading="eager"
         fetchPriority="high"
       />
