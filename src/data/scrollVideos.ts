@@ -6,7 +6,7 @@ export type ScrollVideoSet = {
 export const scrollVideos = {
   home: {
     desktop: "/videos/home/home-desktop.mp4",
-    mobile: "/videos/home/homemobile.mp4",
+    mobile: "/videos/home/home-mobile.mp4",
   },
 
   manufacturing: {

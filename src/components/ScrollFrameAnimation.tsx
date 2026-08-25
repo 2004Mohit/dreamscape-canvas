@@ -51,9 +51,7 @@ export function ScrollFrameAnimation({
 
   const scrollTriggerRef = useRef<ScrollTrigger | null>(null);
 
-  const [viewport, setViewport] = useState<"desktop" | "mobile">(() =>
-    typeof window !== "undefined" && window.innerWidth < 768 ? "mobile" : "desktop",
-  );
+  const [viewport, setViewport] = useState<"desktop" | "mobile" | null>(null);
 
   const [videoReady, setVideoReady] = useState(false);
 
@@ -83,7 +81,8 @@ export function ScrollFrameAnimation({
     };
   }, []);
 
-  const videoSrc = viewport === "mobile" ? videos.mobile : videos.desktop;
+  const videoSrc =
+    viewport === null ? null : viewport === "mobile" ? videos.mobile : videos.desktop;
 
   /*
    * ------------------------------------------------
@@ -94,14 +93,14 @@ export function ScrollFrameAnimation({
   useEffect(() => {
     const video = videoRef.current;
 
-    if (!video) {
+    if (!video || !videoSrc) {
+      setVideoReady(false);
       return;
     }
 
     setVideoReady(false);
 
     video.pause();
-
     video.currentTime = 0;
 
     const handleLoadedMetadata = () => {
@@ -279,37 +278,39 @@ export function ScrollFrameAnimation({
           bg-black
         "
       >
-        <video
-          ref={videoRef}
-          key={videoSrc}
-          src={videoSrc}
-          poster={poster}
-          muted
-          playsInline
-          preload="auto"
-          aria-label={posterAlt}
-          className="
-  absolute
-  inset-0
-  h-full
-  w-full
-  object-cover
-  object-center
-"
-        />
+        {videoSrc && (
+          <video
+            ref={videoRef}
+            key={videoSrc}
+            src={videoSrc}
+            poster={poster}
+            muted
+            playsInline
+            preload="auto"
+            aria-label={posterAlt}
+            className="
+      absolute
+      inset-0
+      h-full
+      w-full
+      object-cover
+      object-center
+    "
+          />
+        )}
 
-        {!videoReady && poster && (
+        {(!videoSrc || !videoReady) && poster && (
           <img
             src={poster}
             alt={posterAlt}
             className="
-  absolute
-  inset-0
-  h-full
-  w-full
-  object-cover
-  object-center
-"
+      absolute
+      inset-0
+      h-full
+      w-full
+      object-cover
+      object-center
+    "
           />
         )}
 
